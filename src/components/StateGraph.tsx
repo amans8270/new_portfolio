@@ -17,61 +17,69 @@ function GraphNodes() {
 
   useFrame((state) => {
     if (ref.current) {
-      ref.current.rotation.y = state.clock.getElapsedTime() * 0.1;
-      ref.current.rotation.x = state.clock.getElapsedTime() * 0.05;
+      ref.current.rotation.y = state.clock.elapsedTime * 0.1;
+      ref.current.rotation.x = state.clock.elapsedTime * 0.05;
     }
   });
+
+  const lineGeometries = useMemo(() => {
+    return skills.map((skill, i) => {
+      const nextSkill = skills[(i + 1) % skills.length];
+      const points = [
+        new THREE.Vector3(...skill.pos),
+        new THREE.Vector3(...nextSkill.pos)
+      ];
+      return new THREE.BufferGeometry().setFromPoints(points);
+    });
+  }, []);
+
+  const lineMaterial = useMemo(() => new THREE.LineBasicMaterial({ 
+    color: "#00f3ff", 
+    transparent: true, 
+    opacity: 0.1 
+  }), []);
+
+  const sphereGeometry = useMemo(() => new THREE.SphereGeometry(0.08, 12, 12), []);
+  const sphereMaterial = useMemo(() => new THREE.MeshStandardMaterial({ 
+    color: "#00f3ff", 
+    emissive: "#00f3ff", 
+    emissiveIntensity: 1.5 
+  }), []);
 
   return (
     <group ref={ref}>
       {skills.map((skill, i) => (
         <group key={i} position={skill.pos as [number, number, number]}>
-          <mesh>
-            <sphereGeometry args={[0.1, 16, 16]} />
-            <meshStandardMaterial color="#00f3ff" emissive="#00f3ff" emissiveIntensity={2} />
-          </mesh>
+          <mesh geometry={sphereGeometry} material={sphereMaterial} />
           <Text
             position={[0, 0.3, 0]}
-            fontSize={0.2}
+            fontSize={0.15}
             color="#00f3ff"
             anchorX="center"
             anchorY="middle"
-            font="https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.woff"
           >
             {skill.name}
           </Text>
         </group>
       ))}
-      {/* Lines between nodes */}
-      {skills.map((skill, i) => {
-        const nextSkill = skills[(i + 1) % skills.length];
-        const points = [
-          new THREE.Vector3(...skill.pos),
-          new THREE.Vector3(...nextSkill.pos)
-        ];
-        const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
-        return (
-          <primitive 
-            key={`line-${i}`} 
-            object={new THREE.Line(
-              lineGeometry, 
-              new THREE.LineBasicMaterial({ color: "#00f3ff", transparent: true, opacity: 0.2 })
-            )} 
-          />
-        );
-      })}
+      {lineGeometries.map((geometry, i) => (
+        <primitive 
+          key={`line-${i}`} 
+          object={new THREE.Line(geometry, lineMaterial)} 
+        />
+      ))}
     </group>
   );
 }
 
 function ParticleField() {
-  const count = 2000;
+  const count = 800; // Reduced from 2000
   const positions = useMemo(() => {
     const pos = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
-      pos[i * 3] = (Math.random() - 0.5) * 15;
-      pos[i * 3 + 1] = (Math.random() - 0.5) * 15;
-      pos[i * 3 + 2] = (Math.random() - 0.5) * 15;
+      pos[i * 3] = (Math.random() - 0.5) * 12;
+      pos[i * 3 + 1] = (Math.random() - 0.5) * 12;
+      pos[i * 3 + 2] = (Math.random() - 0.5) * 12;
     }
     return pos;
   }, []);
@@ -80,7 +88,7 @@ function ParticleField() {
 
   useFrame((state) => {
     if (pointsRef.current) {
-      pointsRef.current.rotation.y = state.clock.getElapsedTime() * 0.02;
+      pointsRef.current.rotation.y = state.clock.elapsedTime * 0.02;
     }
   });
 
@@ -98,10 +106,14 @@ function ParticleField() {
   );
 }
 
-export default function StateGraph() {
+const StateGraph = React.memo(function StateGraph() {
   return (
     <div className="fixed inset-0 -z-10 bg-[#050505]">
-      <Canvas camera={{ position: [0, 0, 5], fov: 75 }}>
+      <Canvas 
+        camera={{ position: [0, 0, 5], fov: 75 }}
+        gl={{ antialias: false, powerPreference: "high-performance" }}
+        dpr={[1, 2]}
+      >
         <ambientLight intensity={0.5} />
         <pointLight position={[10, 10, 10]} intensity={1} color="#00f3ff" />
         <GraphNodes />
@@ -110,4 +122,6 @@ export default function StateGraph() {
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#050505] opacity-80" />
     </div>
   );
-}
+});
+
+export default StateGraph;

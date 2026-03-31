@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { motion } from 'motion/react';
 import { Database, Book, ExternalLink, Cpu, Code, Music } from 'lucide-react';
 
-export default function LabSection() {
-  const projects = [
+const LabSection = React.memo(function LabSection() {
+  const projects = useMemo(() => [
     {
       id: 'sqlverse',
       title: "SQLVerse",
@@ -25,7 +25,7 @@ export default function LabSection() {
       tags: ["Spring Boot", "Angular", "MySQL"],
       github: "https://github.com/amans8270"
     }
-  ];
+  ], []);
 
   const getIcon = (title: string) => {
     const t = title.toLowerCase();
@@ -48,8 +48,8 @@ export default function LabSection() {
             key={project.id || i}
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="group relative bg-[#0a0a0a] border border-cyan-500/10 rounded-3xl p-8 hover:border-cyan-500/40 transition-all duration-500 overflow-hidden"
+            viewport={{ once: true, margin: "-100px" }}
+            className="group relative bg-[#0a0a0a] border border-cyan-500/10 rounded-3xl p-8 hover:border-cyan-500/40 transition-all duration-500 overflow-hidden will-change-transform"
           >
             {project.github && (
               <div className="absolute top-0 right-0 p-6">
@@ -103,4 +103,6 @@ export default function LabSection() {
       </div>
     </section>
   );
-}
+});
+
+export default LabSection;

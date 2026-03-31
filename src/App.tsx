@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { motion, useScroll, useSpring } from 'motion/react';
 import { Download } from 'lucide-react';
+import { db } from './firebase';
+import { doc, getDoc } from 'firebase/firestore';
 import StateGraph from './components/StateGraph';
 import FloatingBadge from './components/FloatingBadge';
 import JourneySection from './components/JourneySection';
 import LabSection from './components/LabSection';
 import SkillMatrix from './components/SkillMatrix';
 import TerminalFooter from './components/TerminalFooter';
-import AdminDashboard from './components/AdminDashboard';
-import { db } from './firebase';
-import { doc, getDoc } from 'firebase/firestore';
+const AdminDashboard = React.lazy(() => import('./components/AdminDashboard'));
 
 export default function App() {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -36,10 +36,14 @@ export default function App() {
     fetchResume();
   }, []);
 
-  if (isAdmin) return <AdminDashboard />;
+  if (isAdmin) return (
+    <React.Suspense fallback={<div className="min-h-screen bg-[#050505] flex items-center justify-center text-cyan-400 font-mono">INITIALIZING_ADMIN_DASHBOARD...</div>}>
+      <AdminDashboard />
+    </React.Suspense>
+  );
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white selection:bg-cyan-500/30 selection:text-cyan-400">
+    <div className="relative min-h-screen bg-[#050505] text-white selection:bg-cyan-500/30 selection:text-cyan-400">
       {/* Progress Bar */}
       <motion.div
         className="fixed top-0 left-0 right-0 h-1 bg-cyan-500 origin-left z-50"
@@ -152,7 +156,7 @@ export default function App() {
       <TerminalFooter />
 
       {/* Global Vignette */}
-      <div className="fixed inset-0 pointer-events-none shadow-[inset_0_0_150px_rgba(0,0,0,1)]" />
+      <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,_transparent_0%,_rgba(0,0,0,0.4)_100%)]" />
     </div>
   );
 }

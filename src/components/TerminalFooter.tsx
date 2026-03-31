@@ -1,11 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'motion/react';
 import { Terminal, Send, Download, Github, Linkedin } from 'lucide-react';
 import { askAmanAgent } from '../services/geminiService';
 import { db } from '../firebase';
 import { doc, getDoc } from 'firebase/firestore';
 
-export default function TerminalFooter() {
+const TerminalFooter = React.memo(function TerminalFooter() {
   const [input, setInput] = useState('');
   const [history, setHistory] = useState<string[]>(['Welcome to Aman\'s Neural Terminal.', 'Type "send" to submit your message, "agent [question]" to ask my AI, or "help" for commands.']);
   const [isSent, setIsSent] = useState(false);
@@ -30,9 +30,11 @@ export default function TerminalFooter() {
     }
   }, [history, isSent]);
 
-  const handleCommand = async (e: React.FormEvent) => {
+  const handleCommand = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     const fullInput = input.trim();
+    if (!fullInput) return;
+    
     const cmd = fullInput.toLowerCase();
     
     if (cmd === 'send') {
@@ -67,10 +69,10 @@ export default function TerminalFooter() {
       setHistory(prev => [...prev, `> ${fullInput}`, `Command not found: ${cmd}`]);
       setInput('');
     }
-  };
+  }, [input, resumeData]);
 
   return (
-    <footer className="w-full py-20 px-4 flex flex-col items-center justify-center bg-[#050505] relative overflow-hidden">
+    <footer className="w-full py-20 px-4 flex flex-col items-center justify-center bg-[#050505] relative z-50 overflow-hidden">
       <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#00f3ff] to-transparent opacity-30" />
       
       <div className="max-w-3xl w-full">
@@ -80,7 +82,7 @@ export default function TerminalFooter() {
         </div>
 
         <div 
-          className="bg-black/80 border border-cyan-500/30 rounded-lg overflow-hidden backdrop-blur-xl shadow-[0_0_50px_-12px_rgba(0,243,255,0.2)]"
+          className="bg-black/80 border border-cyan-500/30 rounded-lg overflow-hidden backdrop-blur-xl shadow-[0_0_50px_-12px_rgba(0,243,255,0.2)] cursor-text"
           onClick={() => inputRef.current?.focus()}
         >
           <div className="bg-cyan-500/10 px-4 py-2 border-b border-cyan-500/30 flex items-center gap-2">
@@ -116,14 +118,14 @@ export default function TerminalFooter() {
             )}
           </div>
 
-          <form onSubmit={handleCommand} className="p-4 border-top border-cyan-500/30 flex items-center gap-2">
+          <form onSubmit={handleCommand} className="p-4 border-t border-cyan-500/30 flex items-center gap-2 relative z-10">
             <span className="text-cyan-400 font-mono">$</span>
             <input 
               ref={inputRef}
               type="text" 
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              className="flex-1 bg-transparent border-none outline-none text-white font-mono text-sm"
+              className="flex-1 bg-transparent border-none outline-none text-white font-mono text-sm placeholder:text-cyan-400/20 min-h-[24px] caret-cyan-400 focus:bg-cyan-500/5 transition-colors"
               placeholder="Type command..."
               autoFocus
             />
@@ -149,4 +151,6 @@ export default function TerminalFooter() {
       </div>
     </footer>
   );
-}
+});
+
+export default TerminalFooter;

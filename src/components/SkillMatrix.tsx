@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { motion } from 'motion/react';
 import { Brain, Server, Layout } from 'lucide-react';
 
-export default function SkillMatrix() {
-  const skills = [
+const SkillMatrix = React.memo(function SkillMatrix() {
+  const skills = useMemo(() => [
     { name: "LangGraph", category: "AI Architecture" },
     { name: "LangChain", category: "AI Architecture" },
     { name: "ReAct", category: "AI Architecture" },
@@ -14,9 +14,9 @@ export default function SkillMatrix() {
     { name: "React", category: "Frontend Craft" },
     { name: "Next.js", category: "Frontend Craft" },
     { name: "Tailwind CSS", category: "Frontend Craft" }
-  ];
+  ], []);
 
-  const categories = ["AI Architecture", "Backend Engine", "Frontend Craft"];
+  const categories = useMemo(() => ["AI Architecture", "Backend Engine", "Frontend Craft"], []);
 
   const getIcon = (category: string) => {
     if (category === "AI Architecture") return <Brain className="text-cyan-400" />;
@@ -68,4 +68,6 @@ export default function SkillMatrix() {
       </div>
     </section>
   );
-}
+});
+
+export default SkillMatrix;

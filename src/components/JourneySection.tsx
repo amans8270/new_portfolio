@@ -1,27 +1,27 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { motion, useScroll, useTransform } from 'motion/react';
 import { Briefcase, Code, Globe } from 'lucide-react';
 
-const experiences = [
-  {
-    title: "Wipro",
-    role: "Project Engineer Trainee",
-    period: "2023 - Present",
-    desc: "Java Full-Stack development specialist. Spearheaded the Muzix App, a music discovery platform built with Spring Boot and React.",
-    icon: <Briefcase className="text-cyan-400" />,
-    color: "from-cyan-500/20 to-blue-500/20"
-  },
-  {
-    title: "Surya Jyoti",
-    role: "Freelance Full-Stack Developer",
-    period: "1.5 Years",
-    desc: "Built robust MERN applications for diverse clients. Focused on scalable architecture and high-performance user interfaces.",
-    icon: <Globe className="text-cyan-400" />,
-    color: "from-purple-500/20 to-cyan-500/20"
-  }
-];
+const JourneySection = React.memo(function JourneySection() {
+  const experiences = useMemo(() => [
+    {
+      title: "Wipro",
+      role: "Project Engineer Trainee",
+      period: "2023 - Present",
+      desc: "Java Full-Stack development specialist. Spearheaded the Muzix App, a music discovery platform built with Spring Boot and React.",
+      icon: <Briefcase className="text-cyan-400" />,
+      color: "from-cyan-500/20 to-blue-500/20"
+    },
+    {
+      title: "Surya Jyoti",
+      role: "Freelance Full-Stack Developer",
+      period: "1.5 Years",
+      desc: "Built robust MERN applications for diverse clients. Focused on scalable architecture and high-performance user interfaces.",
+      icon: <Globe className="text-cyan-400" />,
+      color: "from-purple-500/20 to-cyan-500/20"
+    }
+  ], []);
 
-export default function JourneySection() {
   const targetRef = React.useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: targetRef,
@@ -32,7 +32,10 @@ export default function JourneySection() {
   return (
     <section id="journey" ref={targetRef} className="relative h-[300vh] bg-transparent">
       <div className="sticky top-0 h-screen flex items-center overflow-hidden">
-        <motion.div style={{ x }} className="flex gap-20 px-20">
+        <motion.div 
+          style={{ x }} 
+          className="flex gap-20 px-20 will-change-transform"
+        >
           <div className="min-w-[40vw] flex flex-col justify-center">
             <h2 className="text-6xl font-bold text-white mb-4 tracking-tighter">
               PROFESSIONAL<br />
@@ -78,4 +81,6 @@ export default function JourneySection() {
       </div>
     </section>
   );
-}
+});
+
+export default JourneySection;
