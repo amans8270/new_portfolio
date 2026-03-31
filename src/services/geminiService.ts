@@ -1,6 +1,17 @@
 import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+let aiInstance: GoogleGenAI | null = null;
+
+function getAI() {
+  if (!aiInstance) {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      throw new Error("GEMINI_API_KEY is not configured. Please add it to your environment variables.");
+    }
+    aiInstance = new GoogleGenAI({ apiKey });
+  }
+  return aiInstance;
+}
 
 export async function askAmanAgent(question: string, resumeContext: string) {
   const model = "gemini-3-flash-preview";
@@ -19,6 +30,7 @@ export async function askAmanAgent(question: string, resumeContext: string) {
   `;
 
   try {
+    const ai = getAI();
     const response = await ai.models.generateContent({
       model,
       contents: question,
@@ -30,6 +42,8 @@ export async function askAmanAgent(question: string, resumeContext: string) {
     return response.text;
   } catch (error) {
     console.error("Agent Error:", error);
-    return "Error: Neural link interrupted. Please try again.";
+    return error instanceof Error && error.message.includes("GEMINI_API_KEY") 
+      ? "Error: Neural link offline (API key missing)."
+      : "Error: Neural link interrupted. Please try again.";
   }
 }
